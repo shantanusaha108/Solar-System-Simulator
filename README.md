@@ -1,200 +1,257 @@
-# Solar System Physics Simulation
+# Solar System Simulation
 
-A real-time three-body (Star / Earth / Moon) gravitational sandbox written in
-**C**, rendered with **raylib**, driven by a **raygui** control panel, and built
-with **CMake**.
+A real-time **three-body gravitational simulation** written in **C**, rendered with **raylib**, controlled with **raygui**, and built using **CMake**.
 
-The orbits are not animated. Every position on screen is the output of
-Newtonian pair interactions integrated with Velocity Verlet, and every trail is
-a recording of positions the integrator actually produced.
+The current version simulates a **Star, Earth, and Moon** using Newtonian gravity and **Velocity Verlet** integration. The orbital paths and trails come from the actual simulation rather than predefined animation curves.
 
-## The visual signature
+The system also has a common translational velocity, so the Star itself moves while Earth orbits it. This produces the long, stretched-spring / helix-like path visible in the simulation.
 
-The whole system carries a common translational velocity. Earth therefore
-orbits the Star *while the Star moves*, so Earth's path through the inertial
-frame is a helix — the long, thin, stretched-spring trail that is the point of
-the project. The Star gets a short fading tick of a trail (it shows the system
-is travelling), the Moon a shorter, tighter one coiled around Earth's path.
+---
 
-Nothing anywhere generates `sin(t)`/`cos(t)` for display. Remove the
-translation (slider to 0, then Reset) and the spring collapses back into a
-circle, which is the honest test that it was never faked.
+## Simulation Preview
 
-## Build
-
-```
-cmake -S . -B build
-cmake --build build
-./build/solar_system
+```html
+<video src="https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/2026-09-19%2021-05-18.mkv" controls autoplay muted loop width="900"></video>
 ```
 
-raylib 5.5, raygui 4.0 and cglm 0.9.4 are fetched automatically by CMake. An
-already-installed raylib (>= 4.5) is used instead if CMake finds one. On Linux
-you need the usual X11/GL development packages that raylib itself requires
-(`libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev`
-on Debian/Ubuntu).
+---
 
-### Tests
+# User Interface
 
-The physics engine builds and runs with no window, no GPU and no display:
+## Simulation & Camera
 
-```
-cmake -S . -B build-tests -DSSS_BUILD_APP=OFF
-cmake --build build-tests
-cd build-tests && ctest --output-on-failure
-```
+Pause, reset, simulation speed, camera mode, follow target, and zoom.
 
-Current results: all four suites pass, with a relative energy drift of about
-`7e-14` over five Earth orbits (31,416 steps).
+![Simulation and camera controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/simControlAndCam%2C.png)
 
-## Architecture
+## Basic Statistics
 
-```
-                        main.c
-                          |
-            +-------------+-------------+
-            |                           |
-      Simulation                     Renderer / UI
-            |                           |
-   +--------+--------+            +-----+-----+
-   |        |        |            |           |
-Physics Integrator Collision    Bodies      Trails
-   |        |        |            |           |
-   +--------+--------+            +--- raylib / raygui
-            |
-          Bodies / Trail / Vec3
-```
+The HUD shows simulation time, speed, energy drift, distances, and camera state.
 
-`solar_physics` is a **separate CMake target that does not link raylib**. If a
-gravitational calculation ever wandered into drawing code, or a draw call into
-the engine, that target would stop building. The separation is enforced by the
-build, not by convention.
+![Basic statistics](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/basic_stats.png)
 
-| Module | Responsibility |
+## Mass
+
+Mass can be changed independently for the Star, Earth, and Moon.
+
+![Mass controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/mass.png)
+
+## Gravity Multiplier
+
+An experimental control that changes how strongly each body pulls on the others.
+
+![Gravity multiplier](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/gravity.png)
+
+## Initial Orbit
+
+Controls the starting Earth–Star distance, Moon–Earth distance, and system translation speed.
+
+![Initial orbit controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/orbit.png)
+
+## Trails
+
+Controls the trail length of the Star, Earth, and Moon and the trail fading.
+
+![Trail controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/trail.png)
+
+## Visual Size
+
+Changes the rendered size of the bodies without changing their physical collision radius.
+
+![Visual size controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/visualSize.png)
+
+## Rendering
+
+Controls visual elements such as the star field, trails, grid, meteors, and other scene effects.
+
+![Rendering controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/ren.png)
+
+---
+
+# Project Files
+
+| File | Purpose |
 |---|---|
-| `vector3d.c` | double-precision `Vec3`; no raylib, no cglm |
-| `body.c` | body state, volume-conserving merged radius |
-| `trail.c` | O(1) ring-buffer position history |
-| `physics.c` | pairwise gravity, energy, momentum, centre of mass |
-| `integrator.c` | Velocity Verlet (default) and symplectic Euler |
-| `collision.c` | sphere detection, inelastic merge |
-| `simulation.c` | config, initial conditions, fixed-timestep loop, reset |
-| `camera_sim.c` | FREE / FOLLOW orbit camera (uses cglm for the vector math) |
-| `renderer.c` | textured spheres, visual axial spin, trails, star field, meteors |
-| `ui.c` | themed control panel + information overlay; the only translation unit with `RAYGUI_IMPLEMENTATION` |
-| `main.c` | window, frame order, keyboard shortcuts |
+| `include/body.h` / `src/body.c` | Body data, initialization, state changes, and merged radius calculation. |
+| `include/vector3d.h` / `src/vector3d.c` | `Vec3` mathematics and utility functions. |
+| `include/trail.h` / `src/trail.c` | Ring-buffer storage for simulated positions. |
+| `include/physics.h` / `src/physics.c` | Gravity, energy, momentum, mass, centre of mass, and orbital calculations. |
+| `include/integrator.h` / `src/integrator.c` | Velocity Verlet and Symplectic Euler integration. |
+| `include/collision.h` / `src/collision.c` | Collision detection and body merging. |
+| `include/simulation.h` / `src/simulation.c` | Simulation setup, reset, timestep updates, parameters, trails, and collisions. |
+| `include/camera_sim.h` / `src/camera_sim.c` | FREE / FOLLOW camera, movement, rotation, and zoom. |
+| `include/renderer.h` / `src/renderer.c` | 3D rendering, bodies, trails, star field, and visual effects. |
+| `include/ui.h` / `src/ui.c` | raygui control panel and UI state. |
+| `src/main.c` | Window creation, main loop, input, simulation update, rendering, and shutdown. |
+| `tests/test_vectors.c` | Vector mathematics tests. |
+| `tests/test_gravity.c` | Gravity behaviour tests. |
+| `tests/test_orbit.c` | Orbital and integration tests. |
+| `tests/test_collision.c` | Collision and merging tests. |
+| `tests/test_util.h` | Shared test macros. |
+| `CMakeLists.txt` | Build configuration for the application and tests. |
 
-## Units
+---
 
-Normalised, with `G = 1`:
+# Units
 
-| quantity | value |
-|---|---|
-| length | 1.0 = 1 AU-equivalent |
-| mass | 1.0 = default Star mass |
-| Earth mass | 3.0e-6 |
-| Moon mass | 3.69e-8 |
-| Earth–Star distance | 1.0 |
-| Moon–Earth distance | 0.00257 |
-| Earth orbital period | 2π ≈ 6.283 |
-| Moon orbital period | ≈ 0.47 |
-| fixed timestep `dt` | 1e-3 (≈ 6,280 steps per Earth orbit) |
+The simulation uses normalized units with:
 
-Initial velocities come from `v = sqrt(G*M/r)` and are tangential, using the
-two-body total mass, so changing a mass or an orbit radius changes the velocity
-with it. The centre-of-mass drift the construction introduces is removed, and
-*then* the deliberate common translation is added — which is why the translation
-is a visible system motion rather than an accidental numerical artefact.
+$$
+G = 1
+$$
 
-## Controls
+| Quantity | Value |
+|---|---:|
+| Length | `1.0` = 1 AU-equivalent |
+| Mass | `1.0` = default Star mass |
+| Earth mass | `3.0 \times 10^{-6}` |
+| Moon mass | `3.69 \times 10^{-8}` |
+| Earth–Star distance | `1.0` |
+| Moon–Earth distance | `0.00257` |
+| Earth orbital period | `2\pi \approx 6.283` |
+| Moon orbital period | `\approx 0.47` |
+| Fixed timestep | `dt = 10^{-3}` |
+
+---
+
+# Physics
+
+## Gravity
+
+For two bodies, the gravitational force magnitude is:
+
+$$
+F = \frac{G m_1 m_2}{r^2}
+$$
+
+The corresponding acceleration of body 1 is:
+
+$$
+\vec{a}_1 =
+\frac{G m_2}{r^3}
+(\vec{r}_2-\vec{r}_1)
+$$
+
+The project also has an experimental gravity multiplier:
+
+$$
+\vec{a}_1 =
+\frac{G\,g_2\,m_2}{r^3}
+(\vec{r}_2-\vec{r}_1)
+$$
+
+where `g₂` is the gravity multiplier of the source body.
+
+## Integration
+
+The default integrator is **Velocity Verlet**:
+
+1. Half-step velocity update
+2. Full position update
+3. Recalculate acceleration
+4. Second half-step velocity update
+
+The simulation uses a fixed `dt`; increasing the speed means more physics steps per frame.
+
+## Collisions
+
+The project contains collision-detection and merging code, but the **current collision behaviour is not working as intended**. In particular, an Earth–Star encounter does not currently produce the intended swallowing/destruction effect.
+
+## Physical vs Visual Size
+
+Physical radii are used by the physics system, while much larger visual radii are used for rendering so that the bodies remain visible.
+
+---
+
+# Camera
+
+The camera supports:
+
+- **FREE** mode
+- **FOLLOW** mode
+- Mouse rotation
+- Mouse-wheel zoom
+- `W/A/S/D` movement
+- `Q/E` vertical movement
+
+---
+
+# Controls
 
 | Input | Action |
 |---|---|
 | Mouse drag | Rotate camera |
 | Mouse wheel | Zoom |
-| `W` / `S` | Move camera forward / backward |
-| `A` / `D` | Move camera left / right |
-| `Q` / `E` | Move camera down / up |
+| `W` / `S` | Move forward / backward |
+| `A` / `D` | Move left / right |
+| `Q` / `E` | Move down / up |
 | `Space` | Pause / resume |
 | `R` | Reset |
 | `F` | Toggle FREE / FOLLOW |
 
-Panel controls: play/pause, reset, simulation speed, camera mode and follow
-target, zoom, per-body mass, per-body gravity multiplier, per-body visual
-radius, Earth's visual spin rate, Earth–Star and Moon–Earth initial distances,
-system translation speed, three trail lengths, trail fade exponent, and view
-toggles.
+---
 
-Every numeric readout is also an input: click the number beside a slider and
-type a value. `Enter` commits it, `Escape` restores the previous one, and the
-result is clamped to that slider's own minimum and maximum, so a typed `-5` on
-a `0.1 … 10` control arrives as `0.1` and a typed `999` arrives as `10`. The
-slider and the number are always the same value — there is only one of them.
+# Build
 
-### Physical vs visual
+The project uses **CMake** and a C11-compatible compiler.
 
-Three things on screen are deliberately not to scale, and none of them is
-visible to the physics:
+```bash
+cmake -S . -B build
+cmake --build build
+```
 
-| | source of truth | drawn as |
-|---|---|---|
-| body size | `Body.radius` (collisions) | `BodyVisual.visualRadius` (renderer) |
-| Moon's orbit | real 0.00257 AU | × `MOON_VISUAL_ORBIT_SCALE` at draw time |
-| axial spin | not simulated at all | `Renderer.earthSpin` / `moonSpin`, degrees/second × frame time |
+On Linux:
 
-Earth and the Moon carry procedural textures on a real sphere mesh, so the
-continents and craters rotate *with* the planet rather than sitting on top of
-a static ball. Body names are not drawn in the 3D scene; `Body.name` remains
-for collision reporting.
+```bash
+./build/solar_system
+```
 
-## Things worth knowing
+CMake fetches the required application dependencies when needed:
 
-**Mass and gravity are not secretly decoupled.** Changing a mass changes
-gravitational influence, as Newton requires. The per-body *gravity multiplier*
-is an extra sandbox knob that scales the pull a body exerts
-(`a_i = Σ G·g_j·m_j/r³·(p_j − p_i)`). At 1.0 the model is exactly Newtonian;
-any other value deliberately breaks the third law, and the panel labels it
-experimental.
+- raylib `5.5`
+- raygui `4.0`
+- cglm `0.9.4`
 
-**Orbit-distance sliders are staged.** They edit initial conditions and take
-effect on Reset, which recomputes the matching circular velocity. Applying them
-live would teleport a moving body and inject a non-physical impulse.
+---
 
-**Speed is steps per frame, not a bigger `dt`.** The timestep never grows with
-the frame rate or the speed setting, so 64× is still a stable integration.
+# Tests
 
-**Escape is real.** Drop the Star mass and Earth's existing velocity becomes
-too large for the weaker well; it goes eccentric and leaves. Nothing pulls it
-back and nothing plays an "escaped" animation. `test_orbit` asserts that the
-specific orbital energy actually turns positive.
+The physics tests can be built without the graphical application:
 
-**Visual size ≠ physical size.** Collisions use the physical radii
-(Star 4.65e-3, Earth 4.26e-5, Moon 1.16e-5 AU); the spheres you see are
-hundreds of times larger so they are visible at all. The two never touch each
-other — moving a visual-radius slider cannot cause a collision.
+```bash
+cmake -S . -B build-tests -DSSS_BUILD_APP=OFF
+cmake --build build-tests
+cd build-tests
+ctest --output-on-failure
+```
 
-**Softening** (`PHYS_SOFTENING = 1e-7`) exists only to keep a coincident pair
-from producing `Inf`. It is orders of magnitude smaller than any physical
-radius, so contact is always detected long before softening matters; it is not
-covering for the collision code.
+The tests run without a window or renderer and check the behaviour of the physics functions.
 
-### Known limitations
+---
 
-- A fixed timestep can step *over* a contact if a body moves further than its
-  own radius in one step. This shows up only in extreme configurations (a very
-  tight, very fast orbit); reduce `dt` there. `test_collision` does exactly
-  that.
-- Render positions are `float`. The physics stays `double`, but after the
-  system has travelled a few thousand AU the drawn trail will start to shimmer.
-  The fix, if it ever matters, is to render relative to a moving origin.
-- The Moon's orbit must stay inside Earth's Hill radius (≈ 0.01 AU at 1 AU), so
-  the Moon-distance slider stops at 0.006. Beyond that the Star strips it away —
-  correctly, but it stops being a Moon.
+# Known Problems
 
-## Phase status
+| Problem | Description |
+|---|---|
+| **Moon camera** | Following Earth and following the Moon currently looks too similar. The camera behaviour needs to make Moon-follow mode clearly distinguishable. |
+| **Collision** | Collision detection/merging does not currently produce the intended result. An Earth–Star collision should eventually result in a proper impact, swallowing, or destruction effect instead of Earth continuing in a very small orbit. |
 
-Phases 1–7 of the specification are implemented: physics, window, real
-trajectories, system translation, camera, UI, collisions. Phase 8 (textures,
-shaders, lighting) is deliberately left out — `stb_image` is wired into CMake
-behind an existence check, so dropping `stb_image.h` into `external/stb/`
-defines `SSS_HAVE_STB_IMAGE` and nothing else needs to change.
+---
+
+# Future Goals
+
+## 1. Add More Planets
+
+Expand the current Star/Earth/Moon system to include the other planets of our Solar System and let all of them interact through the same gravitational simulation.
+
+## 2. Dynamic Orbit Changes
+
+Allow orbital parameters such as distance and velocity to be changed while the simulation is running instead of only through reset-based initial conditions.
+
+## 3. Add the Asteroid Belt
+
+Add a large population of asteroids between Mars and Jupiter with different orbital paths and gravitational interactions with the planets.
+
+## 4. Improve Collisions
+
+Make collisions behave more realistically, including proper swallowing, impact effects, or fragmentation where appropriate.

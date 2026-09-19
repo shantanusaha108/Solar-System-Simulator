@@ -10,9 +10,11 @@ The system also has a common translational velocity, so the Star itself moves wh
 
 ## Simulation Preview
 
-```html
-<video src="https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/2026-09-19%2021-05-18.mkv" controls autoplay muted loop width="900"></video>
-```
+
+
+https://github.com/user-attachments/assets/431b2abd-a931-4a4d-8240-5dcfb153d512
+
+
 
 ---
 
@@ -22,49 +24,49 @@ The system also has a common translational velocity, so the Star itself moves wh
 
 Pause, reset, simulation speed, camera mode, follow target, and zoom.
 
-![Simulation and camera controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/simControlAndCam%2C.png)
+![Simulation and camera controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/assets/media/simControlAndCam%2C.png)
 
 ## Basic Statistics
 
 The HUD shows simulation time, speed, energy drift, distances, and camera state.
 
-![Basic statistics](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/basic_stats.png)
+![Basic statistics](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/assets/media/basic_stats.png)
 
 ## Mass
 
 Mass can be changed independently for the Star, Earth, and Moon.
 
-![Mass controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/mass.png)
+![Mass controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/assets/media/mass.png)
 
 ## Gravity Multiplier
 
 An experimental control that changes how strongly each body pulls on the others.
 
-![Gravity multiplier](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/gravity.png)
+![Gravity multiplier](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/assets/media/gravity.png)
 
 ## Initial Orbit
 
 Controls the starting Earth–Star distance, Moon–Earth distance, and system translation speed.
 
-![Initial orbit controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/orbit.png)
+![Initial orbit controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/assets/media/orbit.png)
 
 ## Trails
 
 Controls the trail length of the Star, Earth, and Moon and the trail fading.
 
-![Trail controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/trail.png)
+![Trail controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/assets/media/trail.png)
 
 ## Visual Size
 
 Changes the rendered size of the bodies without changing their physical collision radius.
 
-![Visual size controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/visualSize.png)
+![Visual size controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/assets/media/visualSize.png)
 
 ## Rendering
 
 Controls visual elements such as the star field, trails, grid, meteors, and other scene effects.
 
-![Rendering controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/media/ren.png)
+![Rendering controls](https://github.com/shantanusaha108/Solar-System-Simulator/blob/main/assets/media/ren.png)
 
 ---
 
